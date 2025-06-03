@@ -29,6 +29,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command: npm run dev
+    volumes:
+      - ./api-gateway:/app
 
   booking-service:
     build:
@@ -63,6 +66,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command: npm run dev
+    volumes:
+      - ./user-service:/app
 
   booking-db:
     image: postgres:15

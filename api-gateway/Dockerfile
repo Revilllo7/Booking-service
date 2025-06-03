@@ -7,6 +7,5 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
 RUN npm install -g nodemon
-CMD ["nodemon", "dist/index.js"]
+CMD ["npm", "run", "dev"]
