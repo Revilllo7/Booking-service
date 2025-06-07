@@ -13,8 +13,9 @@ const AVAILABLE_HOURS = [
 
 // Create a booking
 export const createBooking: RequestHandler = async (req, res) => {
-  // Accept both userId from body or from JWT (if you add auth later)
-  const { userId, service, date, time } = req.body;
+  // @ts-ignore
+  const userId = req.user?.id;
+  const { service, date, time } = req.body;
 
   if (!userId || !service || !date || !time) {
     res.status(400).json({ error: "Missing fields" });
@@ -22,11 +23,14 @@ export const createBooking: RequestHandler = async (req, res) => {
   }
 
   try {
+    const bookingDate = new Date(date); // e.g., "2024-06-08"
+    const timeDate = new Date(`1970-01-01T${time}:00Z`); // e.g., "09:00"
+
     // Check for slot conflict
     const conflict = await prisma.booking.findFirst({
       where: {
-        date: new Date(date),
-        time: time,
+        date: bookingDate,
+        time: timeDate,
       },
     });
 
@@ -39,13 +43,13 @@ export const createBooking: RequestHandler = async (req, res) => {
       data: {
         userId,
         service,
-        date: new Date(date),
-        time,
+        date: bookingDate,
+        time: timeDate,
       },
     });
     res.status(201).json(booking);
   } catch (err) {
-    console.error(err);
+    console.error("Booking creation error:", err); // Add detailed logging
     res.status(500).json({ error: "Error creating booking" });
   }
 };
@@ -109,10 +113,14 @@ export const getAvailableSlots: RequestHandler = async (req, res) => {
     });
 
     interface BookingTime {
-      time: string;
+      time: Date;
     }
 
-    const booked: string[] = bookings.map((b: BookingTime) => b.time.slice(0, 5));
+    const booked: string[] = bookings.map((b: BookingTime) =>
+      b.time instanceof Date
+        ? b.time.toISOString().slice(11, 16)
+        : String(b.time).slice(0, 5)
+    );
     const available = AVAILABLE_HOURS.filter((t) => !booked.includes(t));
 
     res.json({ available });
