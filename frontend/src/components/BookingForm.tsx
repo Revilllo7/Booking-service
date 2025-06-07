@@ -7,6 +7,7 @@ const BookingForm = ({ onBookingAdded }: { onBookingAdded?: () => void }) => {
     date: '',
     time: '',
   });
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -14,6 +15,7 @@ const BookingForm = ({ onBookingAdded }: { onBookingAdded?: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
     const token = localStorage.getItem('token');
     const res = await fetch('/api/bookings', {
       method: 'POST',
@@ -24,11 +26,11 @@ const BookingForm = ({ onBookingAdded }: { onBookingAdded?: () => void }) => {
       body: JSON.stringify(formData),
     });
     if (res.ok) {
-      alert('Rezerwacja zapisana!');
+      setMessage({ type: 'success', text: 'Rezerwacja zapisana!' });
       setFormData({ service: '', date: '', time: '' });
       onBookingAdded && onBookingAdded();
     } else {
-      alert('Błąd przy rezerwacji.');
+      setMessage({ type: 'error', text: 'Błąd przy rezerwacji.' });
     }
   };
 
@@ -109,6 +111,9 @@ const BookingForm = ({ onBookingAdded }: { onBookingAdded?: () => void }) => {
         <option value="17:00">17:00</option>
       </select>
       <button type="submit" disabled={showDateError}>Zarezerwuj</button>
+      {message && (
+        <div className={`form-message ${message.type}`}>{message.text}</div>
+      )}
     </form>
   );
 };

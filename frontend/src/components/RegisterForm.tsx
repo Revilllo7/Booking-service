@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [form, setForm] = useState({ username: '', password: '', role: 'client' });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -10,16 +12,17 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    setMessage(null);
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
     if (res.ok) {
-      setMessage('Rejestracja udana! Możesz się zalogować.');
+      setMessage({ type: 'success', text: 'Rejestracja udana! Przekierowanie do logowania...' });
+      setTimeout(() => navigate('/login'), 1500);
     } else {
-      setMessage('Błąd rejestracji.');
+      setMessage({ type: 'error', text: 'Błąd rejestracji.' });
     }
   };
 
@@ -42,7 +45,9 @@ const RegisterForm = () => {
         required
       />
       <button type="submit">Zarejestruj</button>
-      {message && <div style={{ color: 'red', marginTop: 8 }}>{message}</div>}
+      {message && (
+        <div className={`form-message ${message.type}`}>{message.text}</div>
+      )}
     </form>
   );
 };

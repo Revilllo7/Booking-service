@@ -138,7 +138,21 @@ export const getBookingById: RequestHandler = async (req, res) => {
       where: { id: bookingId }
     });
     if (!booking) return res.status(404).json({ error: "Not found" });
-    res.json(booking);
+
+    // Fetch username from user-service
+    let username = 'Gość';
+    try {
+      const resp = await axios.get(`http://user-service:3003/auth/user/${booking.userId}`);
+      username = (resp.data as { username: string }).username;
+    } catch {}
+
+    res.json({
+      id: booking.id,
+      username,
+      service_type: booking.service,
+      date: booking.date,
+      time: booking.time,
+    });
   } catch (err) {
     res.status(500).json({ error: "Error fetching booking" });
   }
@@ -158,11 +172,12 @@ export const updateBooking: RequestHandler = async (req, res) => {
       data: {
         service: newService,
         date: new Date(date),
-        time,
+        time: new Date(`1970-01-01T${time}:00Z`), // <-- convert to Date object
       }
     });
     res.json(updated);
   } catch (err) {
+    console.error("Booking update error:", err); // Add this for debugging
     res.status(500).json({ error: "Error updating booking" });
   }
 };

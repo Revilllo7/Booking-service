@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const LoginForm = () => {
   const [form, setForm] = useState({ username: '', password: '' });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -10,7 +10,7 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    setMessage(null);
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -20,10 +20,10 @@ const LoginForm = () => {
       const data = await res.json();
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      setMessage('Zalogowano!');
+      setMessage({ text: 'Zalogowano!', type: 'success' });
       window.location.href = '/bookings';
     } else {
-      setMessage('Błędny login lub hasło.');
+      setMessage({ text: 'Błędny login lub hasło.', type: 'error' });
     }
   };
 
@@ -46,7 +46,9 @@ const LoginForm = () => {
         required
       />
       <button type="submit">Zaloguj</button>
-      {message && <div style={{ color: 'red', marginTop: 8 }}>{message}</div>}
+      {message && (
+        <div className={`form-message ${message.type}`}>{message.text}</div>
+      )}
     </form>
   );
 };

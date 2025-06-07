@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { deleteBooking, updateBooking, getBooking } from '../api/Bookings';
 import '../index.css';
+import BookingDetails from './BookingDetails';
 
 type Booking = {
   id: number;
@@ -83,15 +84,28 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
 
   const [lookupId, setLookupId] = useState('');
   const [lookupResult, setLookupResult] = useState<Booking | null>(null);
+  const [lookupMessage, setLookupMessage] = useState<string | null>(null);
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLookupMessage(null);
     try {
       const booking = await getBooking(Number(lookupId), token);
+      // Check if the booking belongs to the logged-in user (case-insensitive, trimmed)
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const bookingUsername = (booking.username || '').trim().toLowerCase();
+      const userUsername = (user.username || '').trim().toLowerCase();
+      console.log('Comparing booking.username:', booking.username, 'with user.username:', user.username);
+      if (bookingUsername !== userUsername) {
+        setLookupResult(null);
+        setLookupMessage('Nie masz rezerwacji o takim ID.');
+        console.log('User tried to access a booking not belonging to them.');
+        return;
+      }
       setLookupResult(booking);
     } catch {
       setLookupResult(null);
-      alert('Nie znaleziono rezerwacji lub brak dostępu.');
+      setLookupMessage('Nie znaleziono rezerwacji lub brak dostępu.');
     }
   };
 
@@ -100,7 +114,8 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
       <h2 className="booking-list-title">Twoje rezerwacje</h2>
       <ul className="booking-list-items">
         {bookings.map((b) => (
-          <li key={b.id} className="booking-list-item">
+          <li key={b.id} className="booking-list-item" style={{ position: 'relative' }}>
+            <span className="booking-id-badge">#{b.id}</span>
             {editingId === b.id ? (
               <form onSubmit={handleEditSubmit}>
                 <select
@@ -162,7 +177,7 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
             )}
           </li>
         ))}
-        <form onSubmit={handleLookup} style={{ marginBottom: 16 }}>
+        <form onSubmit={handleLookup} className="booking-lookup-form">
           <input
             type="number"
             placeholder="ID rezerwacji"
@@ -172,9 +187,10 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
           />
           <button type="submit">Szukaj po ID</button>
         </form>
+        <div className="lookup-message">{lookupMessage}</div>
         {lookupResult && (
-          <div style={{ marginBottom: 16, background: '#e0e7ef', padding: 8, borderRadius: 6 }}>
-            <strong>Rezerwacja ID {lookupResult.id}:</strong> {lookupResult.service_type} {lookupResult.date} {lookupResult.time}
+          <div className="booking-lookup-result">
+            <BookingDetails booking={lookupResult} />
           </div>
         )}
       </ul>
