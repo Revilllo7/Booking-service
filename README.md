@@ -76,7 +76,23 @@ Technologie implementacji są dowolne. Należy zadbać o poprawną komunikację 
 
 > Należy zbudować obrazy wieloarchitekturowe (amd64, arm64) przy użyciu docker buildx lub podobnego mechanizmu.
 
-- TODO
+Fragment `docker buildx imagetools inspect revilllo/booking-service:latest` by pokazać, że obraz jest wieloarchitekturowy
+(Nie jest na windowsa, ponieważ to wymaga Kontenerów na Windowsie, co jest pay-to-win i jakby, nie lol. Go install GNU/Linux, enjoy your life)
+
+```Dockerfile
+Name:      docker.io/revilllo/booking-service:latest
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:653f4c06c04ad8cb86ba1a67276893e3c413f2e6e9bc36605c1ee4de4d23b17a
+
+Manifests:
+  Name:        docker.io/revilllo/booking-service:latest@sha256:cc6afda866797d542c823cda2a3136c8ec0d57ecc8c7d12c996d626ac3f3820f
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+
+  Name:        docker.io/revilllo/booking-service:latest@sha256:881f54c65da2665e3ecc4f72a556f5e926e7c6372877f9714b13f9965b533bb7
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm64
+```
 
 ### Dodatkowe punkty
 
@@ -113,9 +129,7 @@ Aplikacja dostępna na `http://localhost:3000`
 
 ## TODO
 
-- [ ] Rozbudować dokumentację API (np. Swagger)
-- [ ] Dodać testy jednostkowe/integracyjne
 - [ ] Zaimplementować endpoint dostępności slotów w booking-service i frontendzie
 - [ ] Dodać wylogowanie i obsługę ról w UI
-- [ ] Użyć Docker Secrets do zarządzania danymi wrażliwymi (opcjonalnie)
-- [ ] Dodać hot reload dla wszystkich usług developerskich (opcjonalnie)
+- [ ] Użyć Docker Secrets do zarządzania danymi wrażliwymi (Problem bez Docker Swarm)
+- [x] Dodać hot reload dla wszystkich usług developerskich (opcjonalnie)
