@@ -30,8 +30,6 @@ services:
       timeout: 5s
       retries: 5
     command: npm run dev
-    volumes:
-      - ./api-gateway:/app
 
   booking-service:
     build:
