@@ -11,12 +11,12 @@ const Header = () => (
                 <li>
                     <Link to="/bookings" className="site-nav-link">Bookings</Link>
                 </li>
-                <li>
+                {/* <li>
                     <Link to="/login" className="site-nav-link">Login</Link>
                 </li>
                 <li>
                     <Link to="/register" className="site-nav-link">Register</Link>
-                </li>
+                </li> */}
                 <li>
                     <Link to="/project" className="site-nav-link">Project Info</Link>
                 </li>

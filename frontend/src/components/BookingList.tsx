@@ -31,7 +31,7 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ service_type: '', date: '', time: '' });
-  const token = localStorage.getItem('token') || '';
+  const token = localStorage.getItem('keycloak-token') || '';
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -50,7 +50,7 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Na pewno usunąć tę rezerwację?')) return;
-    await deleteBooking(id, token);
+    await deleteBooking(id);
     setBookings(bookings.filter(b => b.id !== id));
   };
 
@@ -70,7 +70,7 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId === null) return;
-    await updateBooking(editingId, editForm, token);
+    await updateBooking(editingId, editForm);
     setEditingId(null);
     // Refresh bookings
     const res = await fetch('/api/bookings', {
@@ -90,7 +90,7 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
     e.preventDefault();
     setLookupMessage(null);
     try {
-      const booking = await getBooking(Number(lookupId), token);
+      const booking = await getBooking(Number(lookupId));
       // Check if the booking belongs to the logged-in user (case-insensitive, trimmed)
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const bookingUsername = (booking.username || '').trim().toLowerCase();

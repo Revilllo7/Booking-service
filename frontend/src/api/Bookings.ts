@@ -1,3 +1,7 @@
+function getToken(): string | null {
+  return localStorage.getItem('keycloak-token');
+}
+
 export async function login(username: string, password: string) {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
@@ -18,7 +22,9 @@ export async function register(username: string, password: string, role: string)
   return res.json();
 }
 
-export async function getBooking(id: number, token: string) {
+export async function getBooking(id: number) {
+  const token = getToken();
+  if (!token) throw new Error('No token found');
   const res = await fetch(`/api/bookings/${id}`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
@@ -26,7 +32,9 @@ export async function getBooking(id: number, token: string) {
   return res.json();
 }
 
-export async function updateBooking(id: number, data: any, token: string) {
+export async function updateBooking(id: number, data: any) {
+  const token = getToken();
+  if (!token) throw new Error('No token found');
   const res = await fetch(`/api/bookings/${id}`, {
     method: 'PUT',
     headers: {
@@ -39,7 +47,9 @@ export async function updateBooking(id: number, data: any, token: string) {
   return res.json();
 }
 
-export async function deleteBooking(id: number, token: string) {
+export async function deleteBooking(id: number) {
+  const token = getToken();
+  if (!token) throw new Error('No token found');
   const res = await fetch(`/api/bookings/${id}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` }

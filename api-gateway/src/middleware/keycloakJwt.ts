@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { expressjwt } from 'express-jwt';
-import jwksRsa from 'jwks-rsa';
+import { expressjwt } from "express-jwt";
+import jwksRsa from "jwks-rsa";
 
-export const authenticate = expressjwt({
+export const checkJwt = expressjwt({
   secret: jwksRsa.expressJwtSecret({
     jwksUri: 'http://keycloak:8080/realms/booking-app/protocol/openid-connect/certs',
     cache: true,
@@ -11,5 +10,4 @@ export const authenticate = expressjwt({
   audience: 'frontend',
   issuer: 'http://keycloak:8080/realms/booking-app',
   algorithms: ['RS256'],
-  requestProperty: 'user', // decoded token will be available as req.user
 });

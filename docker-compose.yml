@@ -115,6 +115,17 @@ services:
     networks:
       - app-network
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
 volumes:
   booking-db-data:
   user-db-data:
