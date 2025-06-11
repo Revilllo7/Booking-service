@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Bookings from './pages/Bookings';
 // import LoginForm from './components/LoginForm';
 // import RegisterForm from './components/RegisterForm';
+import AdminPanel from './pages/AdminPanel';
 import Project from './pages/Project';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/bookings" element={<Bookings />} />
         {/* <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} /> */}
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="/project" element={<Project />} />
       </Routes>
     </Router>

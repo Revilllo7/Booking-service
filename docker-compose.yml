@@ -75,6 +75,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bookingdb
+      DATABASE_URL: postgresql://postgres:postgres@booking-db:5432/bookingdb
     volumes:
       - booking-db-data:/var/lib/postgresql/data
       - ./booking-db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -95,6 +96,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: userdb
+      DATABASE_URL: postgresql://postgres:postgres@user-db:5432/userdb
     volumes:
       - user-db-data:/var/lib/postgresql/data
       - ./user-db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -116,19 +118,32 @@ services:
       - app-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    command: start-dev
+    image: quay.io/keycloak/keycloak:21.0
+    command: start --hostname=localhost --http-enabled=true
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_RELATIVE_PATH: /
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_PROXY: edge
+      KC_FRONTEND_URL: http://localhost:8080
+      KC_SPI_X_FRAME_OPTIONS_PROVIDER: allow-from-origin
+      KC_SPI_X_FRAME_OPTIONS_ALLOW_ORIGIN: http://localhost:3000
     ports:
       - "8080:8080"
     networks:
       - app-network
+    volumes:
+      - keycloak_data:/opt/keycloak/data
 
 volumes:
   booking-db-data:
   user-db-data:
+  keycloak_data:
 
 networks:
   app-network:

@@ -8,6 +8,6 @@ export const checkJwt = expressjwt({
     rateLimit: true,
   }),
   audience: 'frontend',
-  issuer: 'http://keycloak:8080/realms/booking-app',
+  issuer: 'http://localhost:8080/realms/booking-app',
   algorithms: ['RS256'],
 });

@@ -16,7 +16,7 @@ const BookingForm = ({ onBookingAdded }: { onBookingAdded?: () => void }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('keycloak-token');
     const res = await fetch('/api/bookings', {
       method: 'POST',
       headers: {

@@ -327,3 +327,41 @@ h2 {
 .form-message.error {
   color: red;
 }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1.5rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e7ef;
+  border: 1px solid #bfc8e6;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #22223b;
+  margin-right: 0.5rem;
+}
+
+.logout-btn {
+  background: #e0e7ef;
+  color: #22223b;
+  border: 1px solid #bfc8e6;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background 0.18s, color 0.12s;
+}
+.logout-btn:hover {
+  background: #ff4f4f;
+  color: #fff;
+  border-color: #ff4f4f;
+}

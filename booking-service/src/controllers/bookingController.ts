@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response, RequestHandler } from "express";
 import { pool } from '../booking-db';
 import axios from 'axios';
+import { getUsernameFromKeycloak } from './keycloakUsers';
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,8 @@ const AVAILABLE_HOURS = [
 export const createBooking: RequestHandler = async (req, res) => {
   // @ts-ignore
   const userId = req.user?.id;
+  // @ts-ignore
+  const username = req.user?.preferred_username || req.user?.name || req.user?.email || 'Gość';
   const { service, date, time } = req.body;
 
   if (!userId || !service || !date || !time) {
@@ -23,8 +26,8 @@ export const createBooking: RequestHandler = async (req, res) => {
   }
 
   try {
-    const bookingDate = new Date(date); // e.g., "2024-06-08"
-    const timeDate = new Date(`1970-01-01T${time}:00Z`); // e.g., "09:00"
+    const bookingDate = new Date(date);
+    const timeDate = new Date(`1970-01-01T${time}:00Z`);
 
     // Check for slot conflict
     const conflict = await prisma.booking.findFirst({
@@ -42,14 +45,22 @@ export const createBooking: RequestHandler = async (req, res) => {
     const booking = await prisma.booking.create({
       data: {
         userId,
+        username, // <-- save username
         service,
         date: bookingDate,
         time: timeDate,
       },
     });
-    res.status(201).json(booking);
+    res.status(201).json({
+      id: booking.id,
+      username: booking.username,
+      service_type: booking.service, // <-- map to service_type
+      date: booking.date,
+      time: booking.time,
+      createdAt: booking.createdAt,
+    });
   } catch (err) {
-    console.error("Booking creation error:", err); // Add detailed logging
+    console.error("Booking creation error:", err);
     res.status(500).json({ error: "Error creating booking" });
   }
 };
@@ -61,33 +72,20 @@ export const getAllBookings: RequestHandler = async (req, res) => {
   try {
     let result;
     if (role === 'admin') {
-      result = await pool.query('SELECT * FROM bookings ORDER BY date, time');
+      result = await pool.query('SELECT id, user_id, username, service_type, date, time, created_at FROM bookings ORDER BY date, time');
     } else {
-      result = await pool.query('SELECT * FROM bookings WHERE user_id = $1 ORDER BY date, time', [id]);
+      result = await pool.query('SELECT id, user_id, username, service_type, date, time, created_at FROM bookings WHERE user_id = $1 ORDER BY date, time', [id]);
     }
     const bookings = result.rows;
 
-    // Get unique userIds from bookings
-    const userIds = [...new Set(bookings.map((b: any) => b.user_id))];
-
-    // Fetch usernames from user-service for each userId
-    const userMap: Record<number, string> = {};
-    await Promise.all(userIds.map(async (userId) => {
-      try {
-        const resp = await axios.get(`http://user-service:3003/auth/user/${userId}`);
-        userMap[userId] = (resp.data as { username: string }).username;
-      } catch {
-        userMap[userId] = 'Gość';
-      }
-    }));
-
-    // Attach username to each booking
+    // Now, just use the username from the row:
     const bookingsWithUser = bookings.map((b: any) => ({
       id: b.id,
-      username: userMap[b.user_id] || 'Gość',
+      username: b.username, // <-- always use the DB value
       service_type: b.service_type,
       date: b.date,
       time: b.time,
+      createdAt: b.created_at,
     }));
 
     res.json(bookingsWithUser);
@@ -148,7 +146,7 @@ export const getBookingById: RequestHandler = async (req, res) => {
 
     res.json({
       id: booking.id,
-      username,
+      username: booking.username,
       service_type: booking.service,
       date: booking.date,
       time: booking.time,

@@ -91,15 +91,11 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
     setLookupMessage(null);
     try {
       const booking = await getBooking(Number(lookupId));
-      // Check if the booking belongs to the logged-in user (case-insensitive, trimmed)
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const bookingUsername = (booking.username || '').trim().toLowerCase();
-      const userUsername = (user.username || '').trim().toLowerCase();
-      console.log('Comparing booking.username:', booking.username, 'with user.username:', user.username);
-      if (bookingUsername !== userUsername) {
+      // Use the updated isAdmin check here!
+      if (!isAdmin && bookingUsername !== userUsername) {
         setLookupResult(null);
         setLookupMessage('Nie masz rezerwacji o takim ID.');
-        console.log('User tried to access a booking not belonging to them.');
         return;
       }
       setLookupResult(booking);
@@ -109,11 +105,24 @@ const BookingList = ({ refreshFlag }: { refreshFlag?: number }) => {
     }
   };
 
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin =
+    (user.realm_access?.roles?.includes('admin')) ||
+    (user.resource_access?.frontend?.roles?.includes('admin'));
+  const userUsername = (user.preferred_username || user.username || user.name || '').trim().toLowerCase();
+
+  const visibleBookings = isAdmin
+    ? bookings
+    : bookings.filter(b => (b.username || '').trim().toLowerCase() === userUsername);
+
+  console.log('Bookings:', bookings);
+  console.log('visibleBookings:', visibleBookings);
   return (
     <div className="booking-list">
       <h2 className="booking-list-title">Twoje rezerwacje</h2>
+      <p>Liczba rezerwacji: {visibleBookings.length}</p>
       <ul className="booking-list-items">
-        {bookings.map((b) => (
+        {visibleBookings.map((b) => (
           <li key={b.id} className="booking-list-item" style={{ position: 'relative' }}>
             <span className="booking-id-badge">#{b.id}</span>
             {editingId === b.id ? (
