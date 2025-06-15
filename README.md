@@ -1,6 +1,9 @@
 # Booking Microservices Project
 
-## Wymagania projektowe
+[Wymagania TECHNOLOGIE CHMUROWE](#wymagania-projektowe-technologie-chmurowe)
+[Wymagania BEZPIECZEŃSTWO APLIKACJI WEB](#wymagania-projektowe-bezpieczeństwo-aplikacji-web)
+
+## Wymagania projektowe TECHNOLOGIE CHMUROWE
 
 Należy zaimplementować aplikację opartą na architekturze mikroserwisowej, składającą się z co najmniej trzech odrębnych, logicznie uzasadnionych usług (mikroserwisów). Przykładowe komponenty:
 
@@ -26,7 +29,7 @@ Technologie implementacji są dowolne. Należy zadbać o poprawną komunikację 
 
 ---
 
-## Elementy oceniane
+## Elementy oceniane Docker
 
 > Ocenie podlega logiczny podział na mikroserwisy, spójność i poprawność zaimplementowanej komunikacji między nimi.
 
@@ -107,6 +110,48 @@ Manifests:
 
 ---
 
+## Elementy oceniane Kubernetes
+
+### Manifesty Zasobów Kubernetes (`Deployment`, `Service`, `ConfigMap`, `Secret`): (x /19 pkt)
+
+> Należy przygotować poprawne manifesty YAML.
+> Wymagana jest poprawna konfiguracja selektorów, etykiet, portów.
+> Ocenie podlega bezpieczne zarządzanie sekretami i konfiguracją.
+
+- [placeholder]
+
+### Trwałe Przechowywanie Danych (PV/PVC): (x / 9 pkt)
+
+> Wymagana jest poprawna definicja PersistentVolumeClaim.
+> Należy użyć StorageClass (jeśli dostępne) lub zdefiniować PersistentVolume.
+> Ocenie podlega poprawne podmontowanie wolumenów w Podach.
+
+- [placeholder]
+
+### Ruch Zewnętrzny (Ingress / LoadBalancer): (x / 9 pkt)
+
+> Należy skonfigurować dostęp do aplikacji z zewnątrz za pomocą Ingress lub Service typu LoadBalancer.
+> Wymagana jest poprawna konfiguracja reguł routingu lub ekspozycji portów.
+
+- [placeholder]
+
+### Skalowanie Aplikacji (Replicas + HPA): (x / 13 pkt)
+
+> Należy ustawić odpowiednią liczbę replik (replicas) w Deployment.
+> Wymagane jest skonfigurowanie działającego HorizontalPodAutoscaler (HPA) dla co najmniej jednej usługi (wymaga Metrics Server).
+
+- [placeholder]
+
+### Dodatkowe punkty
+
+> Monitoring: Wdrożenie Prometheus + Grafana, konfiguracja ServiceMonitor/adnotacji, stworzenie prostego dashboardu. (+4 pkt)
+> Helm: Spakowanie aplikacji jako Helm Chart. (+3 pkt)
+> CI/CD: Zaimplementowanie prostego potoku CI/CD (np. GitHub Actions) do automatycznego budowania obrazów i pushowania do repozytorium kontenerów. (+3 pkt)
+
+- [placeholder]
+
+---
+
 ## Podsumowanie technologii
 
 - **Frontend:** React, TypeScript, Vite, Nginx
@@ -120,16 +165,80 @@ Manifests:
 
 ## Uruchomienie
 
-1. `docker-compose build`
-2. `docker-compose up`
-
-Aplikacja dostępna na `http://localhost:3000`
+1. Clone the repo, go into directory
+2. Have docker open
+3. run in the terminal `docker-compose up --build`
+4. Aplikacja dostępna na `http://localhost:3000`
 
 ---
 
-## TODO
+That's the end for Docker and Kubernetes project </3
 
-- [ ] Zaimplementować endpoint dostępności slotów w booking-service i frontendzie
-- [ ] Dodać wylogowanie i obsługę ról w UI
-- [ ] Użyć Docker Secrets do zarządzania danymi wrażliwymi (Problem bez Docker Swarm)
-- [x] Dodać hot reload dla wszystkich usług developerskich (opcjonalnie)
+---
+
+## Wymagania projektowe BEZPIECZEŃSTWO APLIKACJI WEB
+
+> Celem projektu jest zabezpieczenie FE oraz przynajmniej jednego API używając standardu OAuth 2.0. Mogą to być niezależne aplikacje..
+
+## Elementy oceniane
+
+- Projekt (FE, API, IdP) działa x/5
+- projekt działa w kubernetes x/4
+- Projekt jest dodany do projektu Technologii chmurowych 3/3
+- FE jest zabezpieczony x/4
+  - wymaga logowania przez keycloak
+- FE ma oddzielny panel admina niedostępny dla zwykłych użytkowników x/2
+  - `/admin` route niedostępna dla zwykłych użytkowników
+- Przynajmniej jedno API jest zabezpieczone niezależnie od FE lub FE sam się autoryzuje do naszego BE x/4
+  - API jest zabezpieczone przez JWT
+- Więcej niż jedno API jest zabezpieczone x/1
+  - `booking-service` i `user-service` są zabezpieczone
+- API zwraca różne wartości w zależności od roli użytkownika x/2
+  - Admin widzi wszystkie rezerwacje, użytkownik widzi (i ma dostęp) tylko do swoich własnych
+- Zabezpieczenie zostało poprawnie zaprezentowane (mogę poprosić o wytłumaczenie flow) x/2
+- Czystość kodu i repozytorium x/2
+- PKCE x/1
+
+Suma : x/30
+
+Dodatkowe:
+
+- Aplikacje napisane w innym języku niż JS/TS (np. java, rust) 0/4
+- Dodanie zabezpieczenia do projektu z zeszłego semestru (lub innego swojego większego projektu) 0/4
+- FE korzysta ze stworzonego API 4/4
+
+## Uruchomienie
+
+1. Clone the repo, go into the directory
+2. Have Docker open
+3. run `docker-compose up --build`
+4. open the app `http://localhost:3000`
+
+### In case Keycloak doesn't work (It's mounted as a volume, so it should work, this is just in case)
+
+1. go to `http://localhost:8080/admin/master/console/`
+2. login `admin` password `admin`
+3. create `booking-app` realm
+4. create client for the realm:
+
+- Client ID: `frontend`
+- Root URL `http://booking.local`
+- Valid redirect URIs `http://booking.local/*`
+- Web origins `http://booking.local`
+
+5. create roles for the client:
+
+- admin
+- user
+
+6. create a mapper for the client:
+   `Client frontend` -> `Client scopes` -> `frontend-dedicated` -> `Add mapper` -> `By configuration` -> `Add specified audience to the audience (aud) field of token`:
+   name: `frontend-audience`
+   Add to ID token: `ON`
+   Add to access token: `ON`
+7. create at least two users: `admin` and for example `testuser`
+
+- set their credentials in `Credentials`
+- go to `Role mapping` -> `Assign role` -> `Filter by clients` -> add correct role
+
+8. go to `http://booking.local` and login as one of the users you just created
