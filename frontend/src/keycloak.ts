@@ -1,6 +1,6 @@
 const keycloakPromise = import('keycloak-js').then(({ default: Keycloak }) => {
   return new Keycloak({
-    url: 'http://booking.local',
+    url: 'http://localhost:8080',
     realm: 'booking-app',
     clientId: 'frontend',
   });

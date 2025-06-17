@@ -3,11 +3,11 @@ import jwksRsa from "jwks-rsa";
 
 export const checkJwt = expressjwt({
   secret: jwksRsa.expressJwtSecret({
-    jwksUri: 'http://keycloak:8080/realms/booking-app/protocol/openid-connect/certs',
+    jwksUri: 'http://localhost:8080/realms/booking-app/protocol/openid-connect/certs',
     cache: true,
     rateLimit: true,
   }),
-  audience: 'frontend',
+  audience: ['frontend', 'account'], // Accept both
   issuer: 'http://localhost:8080/realms/booking-app',
   algorithms: ['RS256'],
 });

@@ -18,7 +18,7 @@ export const authenticate = [
       cache: true,
       rateLimit: true,
     }),
-    audience: 'frontend',
+    audience: ['frontend', 'account'], // Accept both
     issuer: 'http://localhost:8080/realms/booking-app',
     algorithms: ['RS256'],
     requestProperty: 'user',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import BookingDetails from '../components/BookingDetails';
+import { deleteBooking } from '../api/Bookings';
 
 type Booking = {
   id: number;
@@ -30,6 +31,14 @@ const AdminPanel = () => {
     fetchBookings();
   }, [token]);
 
+  // yea window.confirm is not the best UX
+  // but it's not for the user to see lol
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Na pewno usunąć tę rezerwację?')) return;
+    await deleteBooking(id);
+    setBookings(bookings.filter(b => b.id !== id));
+  };
+
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLookupMessage(null);
@@ -58,7 +67,7 @@ const AdminPanel = () => {
               {new Date(b.date).toLocaleDateString('pl-PL')} {b.time}
             </span>
             <br />
-            {/* Optionally: add edit/delete buttons here */}
+            <button onClick={() => handleDelete(b.id)}>Usuń</button>
           </li>
         ))}
       </ul>

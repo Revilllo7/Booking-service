@@ -8,6 +8,11 @@ const redisClient = createClient({
     port: 6379
   }
 })
+
+redisClient.on('error', (err) => {
+  console.error('Redis error:', err)
+})
+
 redisClient.connect().catch(console.error)
 
 export const limiter = rateLimit({
@@ -19,4 +24,5 @@ export const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests, please try again after a minute.',
+  skipFailedRequests: true // <-- Add this to skip failed requests
 })

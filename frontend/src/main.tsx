@@ -24,15 +24,20 @@ keycloakPromise
   .then(keycloak => {
     keycloak
       .init({
-        onLoad: 'check-sso',
+        onLoad: 'login-required',
         checkLoginIframe: false,
       })
       .then(authenticated => {
-        createRoot(document.getElementById('root')!).render(
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
-        );
+        if (authenticated) {
+          localStorage.setItem('keycloak-token', keycloak.token || '');
+          localStorage.setItem('user', JSON.stringify(keycloak.tokenParsed));
+          localStorage.setItem('keycloak-id-token', keycloak.idToken || '');
+          createRoot(document.getElementById('root')!).render(
+            <React.StrictMode>
+              <App />
+            </React.StrictMode>
+          );
+        }
       })
       .catch(err => {
         renderError(err?.toString() || 'Unknown error');

@@ -222,9 +222,10 @@ Dodatkowe:
 4. create client for the realm:
 
 - Client ID: `frontend`
-- Root URL `http://booking.local`
-- Valid redirect URIs `http://booking.local/*`
-- Web origins `http://booking.local`
+- Root URL `http://localhost:3000`
+- Valid redirect URIs `http://localhost:3000/*`
+- Valid post logout redirect URIs `http://localhost:3000`, `http://localhost:3000/*`
+- Web origins `http://localhost:3000`
 
 5. create roles for the client:
 
@@ -241,4 +242,4 @@ Dodatkowe:
 - set their credentials in `Credentials`
 - go to `Role mapping` -> `Assign role` -> `Filter by clients` -> add correct role
 
-8. go to `http://booking.local` and login as one of the users you just created
+8. go to `http://localhost:3000` and login as one of the users you just created

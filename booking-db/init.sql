@@ -4,7 +4,8 @@ CREATE TABLE "bookings" (
   date DATE NOT NULL,
   time TIME NOT NULL,
   service_type VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  username VARCHAR(100)
 );
 
 -- Indeks na unikalne rezerwacje
