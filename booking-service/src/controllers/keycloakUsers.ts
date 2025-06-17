@@ -36,6 +36,6 @@ export async function getUsernameFromKeycloak(userId: string): Promise<string | 
       },
     }
   );
-  // You can use username, preferredUsername, or name
+
   return response.data.username || response.data.preferredUsername || null;
 }

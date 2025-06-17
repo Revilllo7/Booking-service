@@ -1,9 +1,8 @@
-// Updated bookingController.ts
 import { PrismaClient } from "@prisma/client";
 import { Request, Response, RequestHandler } from "express";
 import { pool } from '../booking-db';
 import axios from 'axios';
-import { getUsernameFromKeycloak } from './keycloakUsers';
+
 
 const prisma = new PrismaClient();
 
@@ -45,7 +44,7 @@ export const createBooking: RequestHandler = async (req, res) => {
     const booking = await prisma.booking.create({
       data: {
         userId,
-        username, // <-- save username
+        username,
         service,
         date: bookingDate,
         time: timeDate,
@@ -54,7 +53,7 @@ export const createBooking: RequestHandler = async (req, res) => {
     res.status(201).json({
       id: booking.id,
       username: booking.username,
-      service_type: booking.service, // <-- map to service_type
+      service_type: booking.service,
       date: booking.date,
       time: booking.time,
       createdAt: booking.createdAt,
@@ -65,7 +64,7 @@ export const createBooking: RequestHandler = async (req, res) => {
   }
 };
 
-// Get all bookings (raw SQL, for compatibility with your DB schema)
+// Get all bookings
 export const getAllBookings: RequestHandler = async (req, res) => {
   // @ts-ignore
   const { id, role } = req.user;
@@ -78,10 +77,10 @@ export const getAllBookings: RequestHandler = async (req, res) => {
     }
     const bookings = result.rows;
 
-    // Now, just use the username from the row:
+    // Use the username
     const bookingsWithUser = bookings.map((b: any) => ({
       id: b.id,
-      username: b.username, // <-- always use the DB value
+      username: b.username,
       service_type: b.service_type,
       date: b.date,
       time: b.time,
@@ -170,12 +169,12 @@ export const updateBooking: RequestHandler = async (req, res) => {
       data: {
         service: newService,
         date: new Date(date),
-        time: new Date(`1970-01-01T${time}:00Z`), // <-- convert to Date object
+        time: new Date(`1970-01-01T${time}:00Z`), // convert to Date object
       }
     });
     res.json(updated);
   } catch (err) {
-    console.error("Booking update error:", err); // Add this for debugging
+    console.error("Booking update error:", err);
     res.status(500).json({ error: "Error updating booking" });
   }
 };

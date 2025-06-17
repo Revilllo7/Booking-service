@@ -24,6 +24,6 @@ router.use('/auth', createProxyMiddleware({
   pathRewrite: (path, req) => '/auth' + path.replace(/^\/auth/, ''),
 }));
 
-// router.use(limiter);
+router.use(limiter);
 
 export default router;

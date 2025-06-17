@@ -24,5 +24,5 @@ export const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests, please try again after a minute.',
-  skipFailedRequests: true // <-- Add this to skip failed requests
+  skipFailedRequests: true // Skip failed requests
 })

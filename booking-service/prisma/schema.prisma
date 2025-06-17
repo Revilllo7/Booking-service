@@ -10,7 +10,7 @@ datasource db {
 model Booking {
   id        Int      @id @default(autoincrement())
   userId    String   @map("user_id")
-  username  String?  @map("username") // <-- add this line
+  username  String?  @map("username")
   service   String   @map("service_type")
   date      DateTime @db.Date
   time      DateTime @db.Time(0)
